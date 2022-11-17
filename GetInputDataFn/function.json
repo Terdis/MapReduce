@@ -1,0 +1,10 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "blob_service_client",
+      "type": "activityTrigger",
+      "direction": "in"
+    }
+  ]
+}
