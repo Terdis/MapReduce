@@ -7,7 +7,8 @@
 # - run pip install -r requirements.txt
 
 import logging
-from typing import Dict
+from typing import Tuple, List
 
-def main(keyVal: str) -> Dict[str, int]:
-    return {keyVal.split("_")[1] : 1}
+def main(keyVal):
+    result=[(word, 1) for word in keyVal[1].lower().split(" ")]
+    return result

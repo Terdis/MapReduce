@@ -9,11 +9,12 @@
 import logging
 from typing import List
 from typing import Dict
+from typing import Tuple
 from collections import defaultdict
 
-def main(keyValue: List[Dict[str, int]]) -> Dict[str, List[str]]:
+def main(keyValue: List[Tuple[str, int]]) -> List[Tuple[str, List[int]]]:
 
     result=defaultdict(list)
-    for k, v in keyValue:
-        result[k].append(v)
-    return result
+    for tup in keyValue:
+        result[tup[0]].append(tup[1])
+    return list(result.items())

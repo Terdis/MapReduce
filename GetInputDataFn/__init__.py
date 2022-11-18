@@ -9,36 +9,29 @@
 import logging
 import os
 import uuid
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from azure.storage.blob import BlobServiceClient
+from typing import List
+from typing import Tuple
 
-def main(blob_service_client: BlobServiceClient) -> str:
+def main(container: str) -> List[Tuple[int, str]]:
     
-    MY_CONNECTION_STRING= "<replace>"
-    MY_BLOB_CONTAINER="<replace>"
+    connect_str=os.getenv('AZURE_STORAGE_CONNECTION_STRING')
 
-    LOCAL_BLOB_PATH="./input"
-    return "HELLO"
+    blob_service_client=BlobServiceClient.from_connection_string(connect_str)
 
-    class AzureBlobFileDownloader:
-        def __init__(self):
-            print("Initializing AzureBlobFileDownloader")
-        
-            self.blob_service_client=BlobServiceClient.from_connection_string(MY_CONNECTION_STRING)
-            self.my_container=self.blob_service_client.get_container_client(MY_BLOB_CONTAINER)
+    container_client=blob_service_client.get_container_client(container=container)
 
-        def save_blob(self, file_name, file_content):
-            download_file_path=os.path.join(LOCAL_BLOB_PATH, file_name)
+    blob_list=container_client.list_blobs()
 
-            os.makedirs(os.path.dirname(download_file_path), exist_ok=True)
-            with open(download_file_path, "wb") as file:
-                file.write(file_content)
-        
-        def download_all_blobs_in_container(self):
-            my_blobs=self.my_containter.list_blobs()
-            for blob in my_blobs:
-                print(blob.name)
-                bytes=self.my_container.get_blob_client(blob).download_blob().readall()
-                self.save_blob(blob.name, bytes)
+    pairs=[]
 
-    azure_blob_file_downloader=AzureBlobFileDownloader()
-    azure_blob_file_downloader.download_all_blobs_in_container()
+    for blob in blob_list:
+        file=container_client.download_blob(blob.name).content_as_text()
+
+        lines=file.splitlines()
+        line_numbers=list(range(1, len(lines)+1))
+        pairs=pairs+list(zip(line_numbers, lines))
+    
+    return pairs
+
+   

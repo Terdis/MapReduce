@@ -17,29 +17,23 @@ def orchestrator_function(context: df.DurableOrchestrationContext):
     
     
 
-    listFiles = [f for f in os.listdir(rootDirectory) if os.path.isfile(os.path.join(rootDirectory, f))]
+    inputBlob = yield context.call_activity('GetInputDataFn', 'filesinput')
 
     mapTask = []
-    for file in listFiles:
-        with open(file, 'r') as f:
-            i=0
-            for line in f:
-                i+=1
-                for word in line.split(" "):
-                    mapTask.append(context.call_activity("Mapper", f"{i}_{word}"))
-    mapOuts=context.task_all(mapTask)
-    shufflerTask=[]
+    for pair in inputBlob:
+        mapTask.append(context.call_activity('Mapper', pair))
 
-    for mapOut in mapOuts:
-        shufflerTask.append(context.call_activity("Shuffler", mapOut))
+    mapOuts=yield context.task_all(mapTask)
+    
+    mapOuts=sum(mapOuts, [])
 
-    shufflerOuts=context.task_all(shufflerTask)
+    shufflerOuts = yield context.call_activity("Shuffler", mapOuts)
     reducerTask=[]
 
-    for shufflerOut in shufflerOut:
+    for shufflerOut in shufflerOuts:
         reducerTask.append(context.call_activity("Reducer", shufflerOut))
 
-    finalResults=context.task_all(reducerTask)
+    finalResults=yield context.task_all(reducerTask)
     
     return finalResults
 

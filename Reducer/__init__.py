@@ -7,14 +7,10 @@
 # - run pip install -r requirements.txt
 
 import logging
-from typing import List
-from typing import Dict
+from typing import List, Tuple, Dict
 from collections import defaultdict
 
-def main(keyVal: Dict[str, List[int]]) -> Dict[str, int]:
-    summ=0
-    result=defaultdict(lambda x: 0)
+def main(keyVal: List[Tuple[str, int]]) -> Dict[str, int]:
 
-    for k, v in keyVal:
-        result[k]+=v
+    result=(keyVal[0], sum(keyVal[1]))
     return result
